@@ -1,0 +1,27 @@
+{
+  "name": "online-voting-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A full-featured online voting system with auth, anti-abuse, real-time results, and admin panel.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "postinstall": "node scripts/postinstall.js || exit 0",
+    "publish:github": "node scripts/publish-to-github.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-ui-express": "^4.6.3",
+    "uuid": "^9.0.1",
+    "nedb-promises": "^6.2.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
