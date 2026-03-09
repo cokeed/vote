@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>在线投票系统</title>
+  <link rel="stylesheet" href="/styles.css"/>
+</head>
+<body>
+  <header>
+    <h1>在线投票系统</h1>
+    <nav>
+      <a href="/" id="nav-home">首页</a>
+      <a href="/admin.html">管理员后台</a>
+      <a href="/api-docs" target="_blank">API 文档</a>
+    </nav>
+  </header>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <h3>登录</h3>
+          <div id="login-box">
+            <label>用户名</label>
+            <input id="login-username"/>
+            <label>密码</label>
+            <input id="login-password" type="password"/>
+            <div style="margin-top:8px"><button id="btn-login">登录</button></div>
+            <div id="login-msg" class="muted"></div>
+          </div>
+          <hr/>
+          <h3>注册</h3>
+          <div id="register-box">
+            <label>用户名</label>
+            <input id="reg-username"/>
+            <label>邮箱</label>
+            <input id="reg-email"/>
+            <label>密码</label>
+            <input id="reg-password" type="password"/>
+            <div id="reg-captcha">
+              <div class="row" style="align-items:flex-end">
+                <div class="col">
+                  <label>验证码题目</label>
+                  <input id="reg-captcha-question" disabled/>
+                </div>
+                <div class="col">
+                  <label>答案</label>
+                  <input id="reg-captcha-answer"/>
+                </div>
+                <div>
+                  <button id="btn-refresh-captcha" class="secondary">刷新</button>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:8px"><button id="btn-register">注册</button></div>
+            <div id="reg-msg" class="muted"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3>创建投票</h3>
+          <div id="create-poll">
+            <label>标题</label><input id="poll-title"/>
+            <label>描述</label><textarea id="poll-desc"></textarea>
+            <label>类型</label>
+            <select id="poll-type">
+              <option value="single">单选</option>
+              <option value="multiple">多选</option>
+              <option value="rating">评分制</option>
+            </select>
+            <div id="option-box">
+              <label>选项（每行一个）</label>
+              <textarea id="poll-options" placeholder="选项A&#10;选项B"></textarea>
+            </div>
+            <div id="rating-box" style="display:none">
+              <label>评分上限</label>
+              <input id="poll-scale" type="number" min="5" max="10" value="5"/>
+            </div>
+            <label>截止时间（可选，ISO格式或 YYYY-MM-DD HH:mm）</label>
+            <input id="poll-deadline" placeholder="2026-12-31 23:59"/>
+            <div style="margin-top:8px"><button id="btn-create">提交审核</button></div>
+            <div class="muted">提交后需管理员审核通过才可参与</div>
+            <div id="create-msg" class="muted"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <h3>已上线投票</h3>
+        <button id="btn-refresh-list" class="secondary">刷新</button>
+      </div>
+      <div id="poll-list"></div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+  <script>
+    // simple nav highlight
+    document.getElementById('nav-home').classList.add('badge');
+  </script>
+</body>
+</html>
+
