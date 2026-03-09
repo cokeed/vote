@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>管理员后台</title>
+  <link rel="stylesheet" href="/styles.css"/>
+</head>
+<body>
+  <header>
+    <h1>管理员后台</h1>
+    <nav>
+      <a href="/">返回首页</a>
+      <a href="/api-docs" target="_blank">API 文档</a>
+    </nav>
+  </header>
+  <div class="container">
+    <div class="card">
+      <h3>管理员登录</h3>
+      <div class="row" style="align-items:flex-end">
+        <div class="col">
+          <label>用户名</label>
+          <input id="admin-username" value="admin"/>
+        </div>
+        <div class="col">
+          <label>密码</label>
+          <input id="admin-password" type="password" value="admin123"/>
+        </div>
+        <div><button id="btn-admin-login">登录</button></div>
+      </div>
+      <div id="admin-login-msg" class="muted"></div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <h3>待审核投票</h3>
+          <div id="pending-list"></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3>系统统计</h3>
+          <pre id="stats-box" class="muted">未加载</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let token = localStorage.getItem('adminToken') || '';
+    function setMsg(id, text, error=false){ const el=document.getElementById(id); el.textContent=text; el.className=error?'error':'muted';}
+    async function fetchJSON(url, opts={}) {
+      const res = await fetch(url, {
+        ...opts,
+        headers: { 'Content-Type':'application/json', ...(token?{Authorization:'Bearer '+token}:{}) }
+      });
+      if (!res.ok) {
+        let msg='请求失败'; try{const j=await res.json(); msg=j.error||JSON.stringify(j)}catch(_){}; throw new Error(msg);
+      }
+      return res.json();
+    }
+    async function adminLogin() {
+      const username = document.getElementById('admin-username').value.trim();
+      const password = document.getElementById('admin-password').value;
+      try {
+        const j = await fetchJSON('/api/auth/login', { method:'POST', body: JSON.stringify({ username, password }) });
+        if (j.user.role !== 'admin') throw new Error('非管理员账号');
+        token = j.token; localStorage.setItem('adminToken', token);
+        setMsg('admin-login-msg','登录成功');
+        loadPending(); loadStats();
+      } catch(e) {
+        setMsg('admin-login-msg', e.message, true);
+      }
+    }
+    async function loadPending() {
+      try {
+        const list = await fetchJSON('/api/admin/polls/pending');
+        const box = document.getElementById('pending-list');
+        box.innerHTML = '';
+        list.forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'card';
+          const dl = p.deadline ? new Date(p.deadline).toLocaleString() : '无';
+          div.innerHTML = `
+            <div><strong>${p.title}</strong> <span class="badge">${p.type}</span></div>
+            <div class="muted">${p.description || ''}</div>
+            <div class="muted">截止：${dl}</div>
+            <div style="margin-top:8px">
+              <button data-id="${p.id}" class="approve">通过</button>
+              <button data-id="${p.id}" class="reject secondary">拒绝</button>
+            </div>
+          `;
+          box.appendChild(div);
+        });
+        box.querySelectorAll('.approve').forEach(b => b.onclick = async () => { await fetchJSON(`/api/admin/polls/${b.dataset.id}/approve`, { method:'POST' }); loadPending(); });
+        box.querySelectorAll('.reject').forEach(b => b.onclick = async () => { await fetchJSON(`/api/admin/polls/${b.dataset.id}/reject`, { method:'POST' }); loadPending(); });
+      } catch(e) {
+        setMsg('admin-login-msg', e.message, true);
+      }
+    }
+    async function loadStats() {
+      try {
+        const s = await fetchJSON('/api/admin/stats');
+        document.getElementById('stats-box').textContent = `用户：${s.users}\n投票：${s.polls}\n票数：${s.votes}`;
+      } catch(e) {
+        document.getElementById('stats-box').textContent = '无法加载统计';
+      }
+    }
+    document.getElementById('btn-admin-login').onclick = adminLogin;
+    if (token) { loadPending(); loadStats(); }
+  </script>
+</body>
+</html>
+
