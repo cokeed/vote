@@ -1,0 +1,113 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "在线投票系统 API",
+    "version": "0.1.0",
+    "description": "核心接口文档"
+  },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [],
+  "paths": {
+    "/api/captcha": {
+      "get": {
+        "summary": "获取验证码题目",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "summary": "注册",
+        "requestBody": { "required": true },
+        "responses": { "200": { "description": "OK" }, "400": { "description": "验证失败" } }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "登录",
+        "requestBody": { "required": true },
+        "responses": { "200": { "description": "OK" }, "401": { "description": "失败" } }
+      }
+    },
+    "/api/polls": {
+      "get": {
+        "summary": "投票列表",
+        "parameters": [{ "in": "query", "name": "status", "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "summary": "创建投票（需登录）",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true },
+        "responses": { "200": { "description": "OK" }, "400": { "description": "失败" } }
+      }
+    },
+    "/api/polls/{id}": {
+      "get": {
+        "summary": "获取投票详情",
+        "parameters": [{ "in": "path", "name": "id", "required": true }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "不存在" } }
+      }
+    },
+    "/api/polls/{id}/vote": {
+      "post": {
+        "summary": "提交投票",
+        "parameters": [{ "in": "path", "name": "id", "required": true }],
+        "requestBody": { "required": true },
+        "responses": { "200": { "description": "OK" }, "400": { "description": "失败" }, "409": { "description": "重复" } }
+      }
+    },
+    "/api/polls/{id}/results": {
+      "get": {
+        "summary": "结果统计",
+        "parameters": [{ "in": "path", "name": "id", "required": true }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "不存在" } }
+      }
+    },
+    "/api/polls/{id}/stream": {
+      "get": {
+        "summary": "结果实时SSE",
+        "parameters": [{ "in": "path", "name": "id", "required": true }],
+        "responses": { "200": { "description": "SSE" } }
+      }
+    },
+    "/api/admin/polls/pending": {
+      "get": {
+        "summary": "待审核列表（管理员）",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "OK" }, "403": { "description": "禁止" } }
+      }
+    },
+    "/api/admin/polls/{id}/approve": {
+      "post": {
+        "summary": "审核通过（管理员）",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "in": "path", "name": "id", "required": true }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/admin/polls/{id}/reject": {
+      "post": {
+        "summary": "审核拒绝（管理员）",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "in": "path", "name": "id", "required": true }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/admin/stats": {
+      "get": {
+        "summary": "系统统计（管理员）",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    }
+  }
+}
